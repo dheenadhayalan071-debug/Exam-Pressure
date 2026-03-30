@@ -9,22 +9,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate();
 
-  function onAuthSuccess(user, token) {
-    const normalizedUser = {
-      email: user?.email || user?.id || "",
-      username: user?.full_name || user?.username || "",
-    };
+  // function onAuthSuccess(user, token) {
+  //   const normalizedUser = {
+  //     email: user?.email || user?.id || "",
+  //     username: user?.full_name || user?.username || "",
+  //   };
 
-    localStorage.setItem("user", JSON.stringify(normalizedUser));
-    localStorage.setItem("token", token);
+  //   localStorage.setItem("user", JSON.stringify(normalizedUser));
+  //   localStorage.setItem("token", token);
+  // }
+
+  function addNewUserInLocal(newUser) {
+    let registerUser = JSON.parse(localStorage.getItem("registerUser")) || [];
+    registerUser.push(newUser);
+    let currentUser = registerUser.find((user) => {
+      user.email === email;
+      return user;
+    });
+    localStorage.setItem("registerUser", JSON.stringify(currentUser));
+    localStorage.setItem("registerUser", JSON.stringify(registerUser));
+  }
+
+  function addLoginUser(user) {
+    let loginUser = JSON.parse(localStorage.getItem("loginUser")) || [];
+    loginUser.push(user);
+    localStorage.setItem("loginUser", JSON.stringify(loginUser));
   }
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
-    console.log("Submitting...");
 
     try {
       setLoading(true);
@@ -38,12 +53,17 @@ export default function LoginPage() {
         `https://exam-pressure.onrender.com/auth/${mode}`,
         payload,
       );
-      localStorage.setItem("payload", JSON.stringify(payload));
-
-      console.log("Response:", res.data);
+      console.log(res);
+      if (mode === "register") {
+        addNewUserInLocal(res.data);
+      } else {
+        addLoginUser(res.data);
+      }
 
       if (mode === "login" && res.data?.access_token) {
-        onAuthSuccess(res.data.user, res.data.access_token);
+        // onAuthSuccess(res.data.user, res.data.access_token);
+        localStorage.setItem("token", res.data.access_token);
+        localStorage.setItem("payload", JSON.stringify(res.data.user));
 
         navigate("/confirmation", {
           state: { success: true, message: "Login successful!" },

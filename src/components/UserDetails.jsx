@@ -4,6 +4,7 @@ import { BrowserRouter, useNavigate } from "react-router-dom";
 // Inner component that safely uses useNavigate
 const UserDetails = () => {
   const navigate = useNavigate();
+  const [mode, setmode] = useState("register");
   const [openProfile, setOpenProfile] = useState(false);
   const dropdownRef = useRef(null);
   const [data, setdata] = useState(
@@ -29,7 +30,7 @@ const UserDetails = () => {
   // 🚪 Logout logic
   const handleLogout = () => {
     // Clear localStorage
-    localStorage.removeItem("user");
+    localStorage.removeItem("payload");
     localStorage.removeItem("token");
 
     // Clear cookies
